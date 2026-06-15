@@ -3,182 +3,259 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Travel Map</title>
+<title>linkkkkbai</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: #0a0a0a;
-    color: #fff;
-    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
-    overflow: hidden;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+    background: #fff;
+    color: #1a1a1a;
+    font-family: -apple-system, "Helvetica Neue", "Segoe UI", sans-serif;
+    line-height: 1.6;
   }
-  header {
-    padding: 24px 32px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
   }
-  header h1 {
-    font-size: 18px;
-    font-weight: 400;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+
+  .hero {
+    padding: 80px 0 40px;
+    text-align: center;
   }
-  header .count {
+  .hero h1 { font-size: 32px; font-weight: 600; letter-spacing: 1px; margin-bottom: 8px; }
+  .hero p { color: #888; font-size: 16px; }
+
+  .section {
+    padding: 48px 0;
+    border-top: 1px solid #eee;
+  }
+  .section-title {
     font-size: 14px;
-    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #999;
+    margin-bottom: 32px;
   }
-  header .count span {
-    color: #fff;
-  }
-  #map {
-    flex: 1;
+
+  .map-box {
+    width: 100%;
+    background: #fafafa;
+    border-radius: 8px;
+    overflow: hidden;
     cursor: grab;
   }
-  #map:active { cursor: grabbing; }
-  .country {
-    fill: #1a1a1a;
-    stroke: #333;
-    stroke-width: 0.5px;
-    transition: fill 0.2s;
+  .map-box:active { cursor: grabbing; }
+  .map-box svg { display: block; }
+
+  .map-stats {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #999;
   }
-  .country:hover {
-    fill: #333;
+  .map-stats span { color: #1a1a1a; font-weight: 600; }
+
+  #china-map {
+    width: 100%;
+    height: 600px;
+    background: #fafafa;
+    border-radius: 8px;
   }
-  .country.visited {
-    fill: #fff;
-  }
-  .country.visited:hover {
-    fill: #ccc;
-  }
-  .marker {
-    fill: #fff;
-    stroke: #0a0a0a;
-    stroke-width: 1px;
-  }
-  .marker-label {
-    fill: #999;
-    font-size: 10px;
-    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
-  }
+
   #tooltip {
     position: fixed;
-    background: #fff;
-    color: #0a0a0a;
-    padding: 4px 10px;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 4px 12px;
     font-size: 12px;
-    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    border-radius: 4px;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.15s;
-    z-index: 10;
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .bucket-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .bucket-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 15px;
+  }
+  .bucket-item:last-child { border-bottom: none; }
+  .bucket-item .check {
+    width: 18px; height: 18px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .bucket-item.done .check {
+    background: #1a1a1a;
+    border-color: #1a1a1a;
+    position: relative;
+  }
+  .bucket-item.done .check::after {
+    content: "✓"; color: #fff; font-size: 12px;
+    position: absolute; top: -1px; left: 2px;
+  }
+  .bucket-item.done .label { text-decoration: line-through; color: #999; }
+
+  footer {
+    padding: 48px 0;
+    border-top: 1px solid #eee;
+    text-align: center;
+    color: #ccc;
+    font-size: 13px;
   }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Places I've Been</h1>
-  <div class="count"><span id="num">0</span> countries & regions</div>
-</header>
+<div class="container">
+  <div class="hero">
+    <h1>linkkkkbai</h1>
+    <p>exploring the world, one place at a time</p>
+  </div>
 
-<div id="map"></div>
+  <!-- World Map (D3) -->
+  <div class="section">
+    <div class="section-title">World</div>
+    <div class="map-box" id="world-map"></div>
+    <div class="map-stats"><span>5</span> countries & regions</div>
+  </div>
+
+  <!-- China Map (ECharts) -->
+  <div class="section">
+    <div class="section-title">China</div>
+    <div id="china-map"></div>
+    <div class="map-stats"><span>27</span> / 34 provinces & regions</div>
+  </div>
+
+  <!-- Bucket List -->
+  <div class="section">
+    <div class="section-title">Bucket List</div>
+    <div class="bucket-list" id="bucket-list"></div>
+  </div>
+
+  <footer>© 2024 linkkkkbai</footer>
+</div>
+
 <div id="tooltip"></div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="https://d3js.org/topojson.v3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <script>
 
-const visited = [
-  "China", "Taiwan", "Malaysia",
-  "United States of America", "Japan"
-];
+/* --- Tooltip (for world map) --- */
+var tooltip = d3.select("#tooltip");
+function showTip(e, text) {
+  tooltip.style("opacity", 1).text(text)
+    .style("left", (e.clientX + 12) + "px")
+    .style("top", (e.clientY - 32) + "px");
+}
+function moveTip(e) {
+  tooltip.style("left", (e.clientX + 12) + "px").style("top", (e.clientY - 32) + "px");
+}
+function hideTip() { tooltip.style("opacity", 0); }
 
-const markers = [
-  { name: "Hong Kong", coords: [114.17, 22.32] }
-];
+/* ========== World Map (D3) ========== */
+var visitedCountries = ["China", "Taiwan", "Malaysia", "United States of America", "Japan"];
 
-const totalCount = visited.length + markers.length;
-document.getElementById("num").textContent = totalCount;
+var ww = 900, wh = 480;
+var wProj = d3.geoNaturalEarth1().scale(ww / 5.2).translate([ww / 2, wh / 2]);
+var wPath = d3.geoPath().projection(wProj);
+var wSvg = d3.select("#world-map").append("svg").attr("width", ww).attr("height", wh);
+var wG = wSvg.append("g");
+wSvg.call(d3.zoom().scaleExtent([1, 6]).on("zoom", function(e) { wG.attr("transform", e.transform); }));
 
-const width = window.innerWidth;
-const height = window.innerHeight - 60;
-
-const projection = d3.geoNaturalEarth1()
-  .scale(width / 5.5)
-  .translate([width / 2, height / 2]);
-
-const path = d3.geoPath().projection(projection);
-
-const svg = d3.select("#map")
-  .append("svg")
-  .attr("width", width)
-  .attr("height", height);
-
-const g = svg.append("g");
-
-const tooltip = d3.select("#tooltip");
-
-const zoom = d3.zoom()
-  .scaleExtent([1, 8])
-  .on("zoom", (e) => g.attr("transform", e.transform));
-
-svg.call(zoom);
-
-d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(world => {
-  const countries = topojson.feature(world, world.objects.countries);
-
-  g.selectAll(".country")
-    .data(countries.features)
+d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(function(world) {
+  wG.selectAll("path")
+    .data(topojson.feature(world, world.objects.countries).features)
     .join("path")
-    .attr("class", d => {
-      const name = d.properties.name;
-      return visited.includes(name) ? "country visited" : "country";
-    })
-    .attr("d", path)
-    .on("mouseover", (e, d) => {
-      const label = visited.includes(d.properties.name)
-        ? d.properties.name + " ✓"
-        : d.properties.name;
-      tooltip.style("opacity", 1).text(label);
-    })
-    .on("mousemove", (e) => {
-      tooltip
-        .style("left", (e.clientX + 12) + "px")
-        .style("top", (e.clientY - 28) + "px");
-    })
-    .on("mouseout", () => tooltip.style("opacity", 0));
-
-  markers.forEach(m => {
-    const [x, y] = projection(m.coords);
-    g.append("circle")
-      .attr("class", "marker")
-      .attr("cx", x).attr("cy", y).attr("r", 3)
-      .on("mouseover", (e) => {
-        tooltip.style("opacity", 1).text(m.name + " ✓");
-      })
-      .on("mousemove", (e) => {
-        tooltip
-          .style("left", (e.clientX + 12) + "px")
-          .style("top", (e.clientY - 28) + "px");
-      })
-      .on("mouseout", () => tooltip.style("opacity", 0));
-  });
+    .attr("d", wPath)
+    .attr("fill", function(d) { return visitedCountries.includes(d.properties.name) ? "#1a1a1a" : "#e8e8e8"; })
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 0.5)
+    .on("mouseover", function(e, d) { showTip(e, d.properties.name + (visitedCountries.includes(d.properties.name) ? " ✓" : "")); })
+    .on("mousemove", moveTip)
+    .on("mouseout", hideTip);
 });
 
-window.addEventListener("resize", () => {
-  const w = window.innerWidth;
-  const h = window.innerHeight - 60;
-  svg.attr("width", w).attr("height", h);
-  projection.scale(w / 5.5).translate([w / 2, h / 2]);
-  g.selectAll(".country").attr("d", path);
-  markers.forEach(m => {
-    const [x, y] = projection(m.coords);
-    g.selectAll(".marker").attr("cx", x).attr("cy", y);
+/* ========== China Map (ECharts) ========== */
+var visitedProvinces = [
+  "山西","内蒙古","辽宁","黑龙江","上海","重庆","四川","云南",
+  "广东","湖北","安徽","江苏","浙江","江西","北京","天津",
+  "河南","河北","甘肃","青海","宁夏","陕西","海南","香港",
+  "澳门","山东","福建"
+];
+
+function isProvinceVisited(name) {
+  return visitedProvinces.some(function(s) { return name.startsWith(s); });
+}
+
+fetch("china.json").then(function(r) { return r.json(); }).then(function(china) {
+  echarts.registerMap("china", china);
+  var chart = echarts.init(document.getElementById("china-map"));
+
+  var data = [];
+  china.features.forEach(function(f) {
+    var name = f.properties.name;
+    if (!name) return;
+    data.push({ name: name, value: isProvinceVisited(name) ? 1 : 0 });
   });
+
+  chart.setOption({
+    tooltip: {
+      trigger: "item",
+      formatter: function(p) { return p.name + (p.value ? " ✓" : ""); },
+      backgroundColor: "#1a1a1a",
+      borderColor: "#1a1a1a",
+      textStyle: { color: "#fff", fontSize: 12 }
+    },
+    series: [{
+      type: "map",
+      map: "china",
+      roam: true,
+      data: data,
+      itemStyle: { areaColor: "#e8e8e8", borderColor: "#fff", borderWidth: 1 },
+      emphasis: { itemStyle: { areaColor: "#ccc" }, label: { show: true, color: "#1a1a1a" } },
+      select: { disabled: true }
+    }],
+    visualMap: {
+      show: false,
+      min: 0, max: 1,
+      inRange: { color: ["#e8e8e8", "#1a1a1a"] }
+    }
+  });
+
+  window.addEventListener("resize", function() { chart.resize(); });
+});
+
+/* ========== Bucket List ========== */
+var items = [
+  { text: "Bungee jumping ...", done: false },
+  { text: "Skydiving ...", done: false },
+  { text: "Get a scuba diving license ...", done: false },
+  { text: "Buy a motorcycle ...", done: false },
+  { text: "Taste 1982 Lafite ...", done: false },
+  { text: "Learn to drift ...", done: false },
+  { text: "Fly a plane ...", done: false }
+];
+
+var listEl = document.getElementById("bucket-list");
+items.forEach(function(item) {
+  var div = document.createElement("div");
+  div.className = "bucket-item" + (item.done ? " done" : "");
+  div.innerHTML = '<div class="check"></div><span class="label">' + item.text + '</span>';
+  listEl.appendChild(div);
 });
 
 </script>
