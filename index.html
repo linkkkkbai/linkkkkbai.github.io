@@ -102,7 +102,7 @@
     position: relative;
   }
   .bucket-item.done .check::after {
-    content: "✓"; color: #fff; font-size: 12px;
+    content: "\2713"; color: #fff; font-size: 12px;
     position: absolute; top: -1px; left: 2px;
   }
   .bucket-item.done .label { text-decoration: line-through; color: #999; }
@@ -114,6 +114,127 @@
     color: #ccc;
     font-size: 13px;
   }
+
+  /* ===== Slot Machine Cabinet ===== */
+  .slot-cabinet {
+    max-width: 540px;
+    margin: 0 auto;
+    background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow:
+      0 12px 40px rgba(0,0,0,0.5),
+      inset 0 2px 0 rgba(255,255,255,0.05),
+      inset 0 -2px 0 rgba(0,0,0,0.3);
+    border: 3px solid #444;
+    position: relative;
+  }
+
+  /* Top marquee with title */
+  .slot-marquee {
+    text-align: center;
+    padding: 8px 0 16px;
+    position: relative;
+  }
+  .slot-marquee h2 {
+    font-size: 24px;
+    font-weight: 900;
+    color: #ffd700;
+    text-shadow:
+      0 0 10px rgba(255,215,0,0.6),
+      0 2px 4px rgba(0,0,0,0.8);
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    font-family: monospace;
+    margin: 0;
+  }
+
+  /* Decorative lights on top */
+  .slot-lights {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .slot-light {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    box-shadow: 0 0 6px currentColor, 0 0 12px currentColor;
+  }
+  .slot-light.red { color: #ff4444; background: #ff4444; }
+  .slot-light.yellow { color: #ffcc00; background: #ffcc00; }
+  .slot-light.green { color: #44ff44; background: #44ff44; }
+
+  /* The game canvas area */
+  .slot-reel-window {
+    background: #111;
+    border-radius: 8px;
+    padding: 12px;
+    border: 2px solid #333;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+  }
+  #slot-game {
+    display: flex;
+    justify-content: center;
+  }
+  #slot-game canvas {
+    border-radius: 4px;
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  /* Bottom panel with controls */
+  .slot-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding: 8px 0;
+  }
+  .slot-credit {
+    font-family: monospace;
+    font-size: 12px;
+    color: #888;
+    letter-spacing: 2px;
+  }
+  .slot-credit span {
+    color: #ffd700;
+    font-weight: bold;
+  }
+
+  /* Side decorations (rivets/screws) */
+  .slot-cabinet::before,
+  .slot-cabinet::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #666, #333);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+  }
+  .slot-cabinet::before { top: 12px; left: 12px; }
+  .slot-cabinet::after { top: 12px; right: 12px; }
+
+  .slot-bottom-rivets {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .slot-bottom-rivets::before,
+  .slot-bottom-rivets::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #666, #333);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+  }
 </style>
 </head>
 <body>
@@ -124,6 +245,352 @@
     <p>exploring the world, one place at a time</p>
   </div>
 
+  <!-- Slot Machine -->
+  <div class="section">
+    <div class="section-title">Lucky Slot</div>
+    <div class="slot-cabinet">
+      <div class="slot-lights">
+        <div class="slot-light red"></div>
+        <div class="slot-light yellow"></div>
+        <div class="slot-light green"></div>
+        <div class="slot-light yellow"></div>
+        <div class="slot-light red"></div>
+      </div>
+      <div class="slot-marquee">
+        <h2>Lucky Slot</h2>
+      </div>
+      <div class="slot-reel-window">
+        <div id="slot-game"></div>
+      </div>
+      <div class="slot-controls">
+        <div class="slot-credit">CREDITS: <span id="credit-display">100</span></div>
+        <div class="slot-credit">WIN: <span id="win-display">0</span></div>
+      </div>
+      <div class="slot-bottom-rivets"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+  <script>
+  /* ==========================================================
+  *  Lucky Slot - Phaser 3 + Pixel Art Assets (CC-BY 4.0)
+  *  - Correct symbol crop coordinates from sprite sheet
+  *  - Transparent background, CSS cabinet frame
+  *  - Sound effects via Web Audio API
+  *  - Fullscreen coin explosion on win
+  * ========================================================== */
+  class SlotScene extends Phaser.Scene {
+    constructor() { super({ key: 'SlotScene' }); }
+
+    // ===== Load assets =====
+    preload() {
+      this.load.image('fruits', 'asset/pixel_art_slot_machine_-_fruits.png');
+    }
+
+    create() {
+      // ===== Extract symbol textures with CORRECT coordinates =====
+      // Based on detailed analysis of the sprite sheet (181x157):
+      // Large symbols (51x33): Col 0 at x=5, Col 1 at x=61
+      // Rows at y=5, 43, 81, 119
+
+      var symbols = [
+        { name: 'orange',     x: 5,   y: 5,   w: 51, h: 33 },  // Col 0, Row 0
+        { name: 'watermelon', x: 5,   y: 43,  w: 51, h: 33 },  // Col 0, Row 1
+        { name: 'bell',       x: 5,   y: 119, w: 51, h: 33 },  // Col 0, Row 3
+        { name: 'bar',        x: 61,  y: 43,  w: 51, h: 33 },  // Col 1, Row 1
+        { name: 'seven',      x: 61,  y: 81,  w: 51, h: 33 },  // Col 1, Row 2
+      ];
+
+      var fruitsTex = this.textures.get('fruits');
+      var sourceImg = fruitsTex.getSourceImage();
+
+      symbols.forEach(function(sym) {
+        var tex = this.textures.createCanvas(sym.name, sym.w, sym.h);
+        var ctx = tex.getContext();
+        ctx.drawImage(sourceImg, sym.x, sym.y, sym.w, sym.h, 0, 0, sym.w, sym.h);
+        tex.refresh();
+      }.bind(this));
+
+      this.symbolNames = symbols.map(function(s) { return s.name; });
+
+      // ===== Layout =====
+      this.SYMBOL_SIZE = 56;
+      this.PADDING     = 10;
+      this.REEL_COUNT  = 3;
+      this.ROW_COUNT   = 3;
+
+      this.centerX = this.scale.width / 2;
+      this.centerY = this.scale.height / 2;
+
+      var gridW = this.REEL_COUNT * this.SYMBOL_SIZE + (this.REEL_COUNT - 1) * this.PADDING;
+      var gridH = this.ROW_COUNT * this.SYMBOL_SIZE + (this.ROW_COUNT - 1) * this.PADDING;
+
+      this.startX = this.centerX - gridW / 2 + this.SYMBOL_SIZE / 2;
+      this.startY = this.centerY - gridH / 2 + this.SYMBOL_SIZE / 2 - 24;
+
+      // ===== Cell backgrounds =====
+      for (var c = 0; c < this.REEL_COUNT; c++) {
+        for (var r = 0; r < this.ROW_COUNT; r++) {
+          var x = this.startX + c * (this.SYMBOL_SIZE + this.PADDING);
+          var y = this.startY + r * (this.SYMBOL_SIZE + this.PADDING);
+          var bg = this.add.graphics();
+          bg.fillStyle(0x111111);
+          bg.fillRoundedRect(
+            x - this.SYMBOL_SIZE / 2, y - this.SYMBOL_SIZE / 2,
+            this.SYMBOL_SIZE, this.SYMBOL_SIZE, 4
+          );
+          // Add subtle border
+          bg.lineStyle(1, 0x333333);
+          bg.strokeRoundedRect(
+            x - this.SYMBOL_SIZE / 2, y - this.SYMBOL_SIZE / 2,
+            this.SYMBOL_SIZE, this.SYMBOL_SIZE, 4
+          );
+        }
+      }
+
+      // ===== Place symbols =====
+      this.reels = [];
+      for (var c = 0; c < this.REEL_COUNT; c++) {
+        this.reels[c] = [];
+        for (var r = 0; r < this.ROW_COUNT; r++) {
+          var idx = Phaser.Math.Between(0, this.symbolNames.length - 1);
+          var x = this.startX + c * (this.SYMBOL_SIZE + this.PADDING);
+          var y = this.startY + r * (this.SYMBOL_SIZE + this.PADDING);
+          var img = this.add.image(x, y, this.symbolNames[idx]);
+          img.setDisplaySize(this.SYMBOL_SIZE - 8, this.SYMBOL_SIZE - 8);
+          img.symbolIndex = idx;
+          this.reels[c][r] = img;
+        }
+      }
+
+      // ===== SPIN button =====
+      var btnX = this.centerX;
+      var btnY = this.startY + gridH + 40;
+      var btnW = 80, btnH = 32;
+
+      this.btnBg = this.add.graphics();
+      this.btnBg.fillStyle(0xcc2222);
+      this.btnBg.fillRoundedRect(btnX - btnW / 2, btnY - btnH / 2, btnW, btnH, 4);
+      this.btnBg.lineStyle(2, 0xff4444);
+      this.btnBg.strokeRoundedRect(btnX - btnW / 2, btnY - btnH / 2, btnW, btnH, 4);
+
+      this.add.text(btnX, btnY, 'SPIN', {
+        fontSize: '16px', color: '#ffffff', fontStyle: 'bold',
+        fontFamily: 'monospace'
+      }).setOrigin(0.5);
+
+      var spinBtn = this.add.zone(btnX, btnY, btnW, btnH)
+                        .setInteractive({ useHandCursor: true });
+      this.isSpinning = false;
+
+      spinBtn.on('pointerover', function() { this.btnBg.setAlpha(0.7); }.bind(this));
+      spinBtn.on('pointerout',  function() { this.btnBg.setAlpha(1);   }.bind(this));
+
+      var self = this;
+      spinBtn.on('pointerdown', function() {
+        if (!self.isSpinning) {
+          self.isSpinning = true;
+          self.resultText.setText('');
+          self.spinAllReels();
+        }
+      });
+
+      // ===== Result text =====
+      this.resultText = this.add.text(this.centerX, btnY + 28, '', {
+        fontSize: '14px', color: '#ffffff', fontFamily: 'monospace'
+      }).setOrigin(0.5);
+
+      // ===== Audio =====
+      this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+      this.playTone = function(freq, dur, type) {
+        var o = this.audioCtx.createOscillator();
+        var g = this.audioCtx.createGain();
+        o.type = type || 'sine';
+        o.frequency.value = freq;
+        o.connect(g);
+        g.connect(this.audioCtx.destination);
+        g.gain.value = 0.3;
+        o.start();
+        o.stop(this.audioCtx.currentTime + dur);
+      };
+
+      this.playSpinSound = function() { this.playTone(300, 0.1, 'square'); };
+      this.playStopSound = function() { this.playTone(600, 0.15, 'sine'); };
+
+      this.playWinSound = function() {
+        var s = this;
+        [523, 659, 784, 1047, 1319].forEach(function(f, i) {
+          setTimeout(function() { s.playTone(f, 0.3, 'sine'); }, i * 150);
+        });
+      };
+
+      this.playCoinSound = function() {
+        this.playTone(1200 + Math.random() * 400, 0.08, 'sine');
+      };
+    }
+
+    spinAllReels() {
+      var WIN_CHANCE = 0.25;
+      var isWin = Math.random() < WIN_CHANCE;
+
+      if (isWin) this.winSymbolIndex = Phaser.Math.Between(0, this.symbolNames.length - 1);
+
+      this.finalResults = [];
+      for (var c = 0; c < this.REEL_COUNT; c++) {
+        this.finalResults[c] = [];
+        for (var r = 0; r < this.ROW_COUNT; r++) {
+          this.finalResults[c][r] = (isWin && r === 1)
+            ? this.winSymbolIndex
+            : Phaser.Math.Between(0, this.symbolNames.length - 1);
+        }
+      }
+
+      for (var c = 0; c < this.REEL_COUNT; c++) this.startReelSpin(c);
+
+      this.spinSoundInterval = setInterval(function() {
+        this.playSpinSound();
+      }.bind(this), 150);
+
+      for (var c = 0; c < this.REEL_COUNT; c++) {
+        (function(self, ci) {
+          self.time.delayedCall(1500 + ci * 500, function() {
+            self.stopReel(ci);
+          });
+        })(this, c);
+      }
+    }
+
+    startReelSpin(col) {
+      var self = this;
+      if (!this.reelTimers) this.reelTimers = [];
+
+      this.reelTimers[col] = this.time.addEvent({
+        delay: 80,
+        loop: true,
+        callback: function() {
+          for (var r = 0; r < self.ROW_COUNT; r++) {
+            var idx = Phaser.Math.Between(0, self.symbolNames.length - 1);
+            self.reels[col][r].setTexture(self.symbolNames[idx]);
+            self.reels[col][r].setDisplaySize(self.SYMBOL_SIZE - 8, self.SYMBOL_SIZE - 8);
+            self.reels[col][r].symbolIndex = idx;
+          }
+        }
+      });
+    }
+
+    stopReel(col) {
+      if (this.reelTimers[col]) {
+        this.reelTimers[col].remove();
+        this.reelTimers[col] = null;
+      }
+
+      this.playStopSound();
+
+      for (var r = 0; r < this.ROW_COUNT; r++) {
+        var fi = this.finalResults[col][r];
+        this.reels[col][r].setTexture(this.symbolNames[fi]);
+        this.reels[col][r].setDisplaySize(this.SYMBOL_SIZE - 8, this.SYMBOL_SIZE - 8);
+        this.reels[col][r].symbolIndex = fi;
+      }
+
+      for (var r = 0; r < this.ROW_COUNT; r++) {
+        this.tweens.add({
+          targets: this.reels[col][r],
+          y: this.reels[col][r].y - 10,
+          duration: 100,
+          yoyo: true,
+          ease: 'Bounce.easeOut'
+        });
+      }
+
+      if (col === this.REEL_COUNT - 1) {
+        clearInterval(this.spinSoundInterval);
+        this.time.delayedCall(300, this.checkWin, [], this);
+      }
+    }
+
+    explodeCoins() {
+      var self = this;
+
+      var overlay = document.createElement('div');
+      overlay.id = 'coin-overlay';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;pointer-events:none;';
+      document.body.appendChild(overlay);
+
+      var coinGame = new Phaser.Game({
+        type: Phaser.AUTO,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        parent: 'coin-overlay',
+        transparent: true,
+        scene: {
+          create: function() {
+            var g = this.make.graphics({ add: false });
+            g.fillStyle(0xffd700); g.fillCircle(12, 12, 12);
+            g.fillStyle(0xffa500); g.fillCircle(12, 12, 8);
+            g.fillStyle(0xffd700); g.fillRect(9, 6, 6, 12); g.fillRect(7, 9, 10, 3);
+            g.generateTexture('bigcoin', 24, 24);
+            g.destroy();
+
+            var em = this.add.particles(0, 0, 'bigcoin', {
+              x: { min: 0, max: window.innerWidth },
+              y: -20,
+              speedY: { min: 300, max: 800 },
+              speedX: { min: -200, max: 200 },
+              gravityY: 400,
+              angle: { min: -20, max: 20 },
+              scale: { start: 1.5, end: 0.5 },
+              alpha: { start: 1, end: 0 },
+              lifespan: 3000,
+              rotate: { min: -360, max: 360 },
+              frequency: 80,
+              quantity: 6,
+              emitting: true
+            });
+
+            this.time.delayedCall(3000, function() { em.stop(); });
+            this.time.delayedCall(4500, function() {
+              var el = document.getElementById('coin-overlay');
+              if (el) el.remove();
+              coinGame.destroy(true);
+            });
+          }
+        }
+      });
+
+      var ct = setInterval(function() { self.playCoinSound(); }, 200);
+      setTimeout(function() { clearInterval(ct); }, 3000);
+    }
+
+    checkWin() {
+      var m0 = this.reels[0][1].symbolIndex;
+      var m1 = this.reels[1][1].symbolIndex;
+      var m2 = this.reels[2][1].symbolIndex;
+
+      if (m0 === m1 && m1 === m2) {
+        this.resultText.setText('JACKPOT! ' + this.symbolNames[m0].toUpperCase() + ' x3 !')
+                        .setColor('#00ff00');
+        this.cameras.main.shake(500, 0.02);
+        this.playWinSound();
+        this.explodeCoins();
+      } else {
+        this.resultText.setText('Try again!').setColor('#ff4444');
+      }
+      this.isSpinning = false;
+    }
+  }
+
+  var config = {
+    type: Phaser.AUTO,
+    width: 460,
+    height: 360,
+    parent: 'slot-game',
+    transparent: true,
+    scene: SlotScene
+  };
+  new Phaser.Game(config);
+  </script>
   <!-- World Map (D3) -->
   <div class="section">
     <div class="section-title">World</div>
@@ -144,7 +611,7 @@
     <div class="bucket-list" id="bucket-list"></div>
   </div>
 
-  <footer>© 2024 linkkkkbai</footer>
+  <footer>&copy; 2024 linkkkkbai</footer>
 </div>
 
 <div id="tooltip"></div>
@@ -184,17 +651,17 @@ d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(f
     .attr("fill", function(d) { return visitedCountries.includes(d.properties.name) ? "#1a1a1a" : "#e8e8e8"; })
     .attr("stroke", "#fff")
     .attr("stroke-width", 0.5)
-    .on("mouseover", function(e, d) { showTip(e, d.properties.name + (visitedCountries.includes(d.properties.name) ? " ✓" : "")); })
+    .on("mouseover", function(e, d) { showTip(e, d.properties.name + (visitedCountries.includes(d.properties.name) ? " \u2713" : "")); })
     .on("mousemove", moveTip)
     .on("mouseout", hideTip);
 });
 
 /* ========== China Map (ECharts) ========== */
 var visitedProvinces = [
-  "山西","内蒙古","辽宁","黑龙江","上海","重庆","四川","云南",
-  "广东","湖北","安徽","江苏","浙江","江西","北京","天津",
-  "河南","河北","甘肃","青海","宁夏","陕西","海南","香港",
-  "澳门","山东","福建","台湾"
+  "\u5C71\u897F","\u5185\u8499\u53E4","\u8FBD\u5B81","\u9ED1\u9F99\u6C5F","\u4E0A\u6D77","\u91CD\u5E86","\u56DB\u5DDD","\u4E91\u5357",
+  "\u5E7F\u4E1C","\u6E56\u5317","\u5B89\u5FBD","\u6C5F\u82CF","\u6D59\u6C5F","\u6C5F\u897F","\u5317\u4EAC","\u5929\u6D25",
+  "\u6CB3\u5357","\u6CB3\u5317","\u7518\u8083","\u9752\u6D77","\u5B81\u590F","\u9655\u897F","\u6D77\u5357","\u9999\u6E2F",
+  "\u6FB3\u95E8","\u5C71\u4E1C","\u798F\u5EFA","\u53F0\u6E7E"
 ];
 
 function isProvinceVisited(name) {
@@ -215,7 +682,7 @@ fetch("china.json").then(function(r) { return r.json(); }).then(function(china) 
   chart.setOption({
     tooltip: {
       trigger: "item",
-      formatter: function(p) { return p.name + (p.value ? " ✓" : ""); },
+      formatter: function(p) { return p.name + (p.value ? " \u2713" : ""); },
       backgroundColor: "#1a1a1a",
       borderColor: "#1a1a1a",
       textStyle: { color: "#fff", fontSize: 12 }
@@ -259,5 +726,7 @@ items.forEach(function(item) {
 });
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+
 </body>
 </html>
