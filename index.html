@@ -235,6 +235,225 @@
     background: radial-gradient(circle at 30% 30%, #666, #333);
     box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
   }
+
+  /* ===== Pixel Music Player (floating) ===== */
+  .pixel-player {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 240px;
+    background: #2a2a2a;
+    border: 3px solid #555;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    font-family: monospace;
+    image-rendering: pixelated;
+    cursor: move;
+  }
+
+  /* Top label */
+  .pixel-player-label {
+    text-align: center;
+    font-size: 8px;
+    color: #888;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* Cassette window */
+  .pixel-player-cassette {
+    background: #1a1a1a;
+    border: 2px solid #444;
+    border-radius: 4px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  /* Spinning reels */
+  .pixel-reel {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #333;
+    border: 2px solid #555;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .pixel-reel::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #222;
+    border: 1px solid #444;
+  }
+  .pixel-reel::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 10px;
+    background: #555;
+  }
+  .pixel-reel.spinning {
+    animation: spin-reel 1s linear infinite;
+  }
+  @keyframes spin-reel {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Tape window (the clear part showing tape) */
+  .pixel-tape-window {
+    flex: 1;
+    height: 20px;
+    background: #111;
+    border: 1px solid #444;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pixel-tape-line {
+    width: 80%;
+    height: 2px;
+    background: #444;
+    position: relative;
+  }
+  .pixel-tape-line::before,
+  .pixel-tape-line::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    width: 4px;
+    height: 10px;
+    background: #555;
+  }
+  .pixel-tape-line::before { left: 0; }
+  .pixel-tape-line::after { right: 0; }
+
+  /* LCD display */
+  .pixel-player-display {
+    background: #0a2a0a;
+    border: 2px solid #444;
+    border-radius: 2px;
+    padding: 4px 6px;
+    margin-bottom: 8px;
+  }
+  .pixel-player-title {
+    font-size: 10px;
+    color: #44ff44;
+    text-shadow: 0 0 4px rgba(68,255,68,0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+  .pixel-player-time {
+    font-size: 9px;
+    color: #33cc33;
+    text-align: right;
+  }
+
+  /* Progress bar */
+  .pixel-player-progress {
+    width: 100%;
+    height: 4px;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    position: relative;
+  }
+  .pixel-player-progress-fill {
+    height: 100%;
+    background: #44ff44;
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  /* Controls */
+  .pixel-player-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+  }
+  .pixel-btn {
+    width: 28px;
+    height: 22px;
+    background: #444;
+    border: 2px solid #666;
+    border-bottom-color: #222;
+    border-right-color: #222;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #ccc;
+    font-size: 10px;
+    user-select: none;
+  }
+  .pixel-btn:active {
+    border: 2px solid #222;
+    border-bottom-color: #666;
+    border-right-color: #666;
+    background: #333;
+  }
+  .pixel-btn-play {
+    width: 36px;
+    height: 26px;
+    background: #cc2222;
+    border-color: #ff4444 #881111 #881111 #ff4444;
+  }
+  .pixel-btn-play:active {
+    background: #aa1111;
+    border-color: #881111 #ff4444 #ff4444 #881111;
+  }
+
+  /* Volume */
+  .pixel-player-volume {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .pixel-volume-icon {
+    font-size: 10px;
+    color: #888;
+    width: 14px;
+    text-align: center;
+  }
+  .pixel-volume-slider {
+    flex: 1;
+    height: 4px;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+  }
+  .pixel-volume-fill {
+    height: 100%;
+    background: #888;
+    border-radius: 2px;
+    width: 70%;
+  }
 </style>
 </head>
 <body>
@@ -727,6 +946,246 @@ items.forEach(function(item) {
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+
+<!-- Pixel Music Player (floating) -->
+<div class="pixel-player" id="pixel-player">
+  <div class="pixel-player-label">PIXEL PLAYER</div>
+
+  <!-- Cassette window with spinning reels -->
+  <div class="pixel-player-cassette">
+    <div class="pixel-reel" id="reel-left"></div>
+    <div class="pixel-tape-window">
+      <div class="pixel-tape-line"></div>
+    </div>
+    <div class="pixel-reel" id="reel-right"></div>
+  </div>
+
+  <!-- LCD display -->
+  <div class="pixel-player-display">
+    <div class="pixel-player-title" id="song-title">No song loaded</div>
+    <div class="pixel-player-time" id="song-time">0:00 / 0:00</div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="pixel-player-progress" id="progress-bar">
+    <div class="pixel-player-progress-fill" id="progress-fill"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="pixel-player-controls">
+    <div class="pixel-btn" id="btn-prev" title="Previous">&#9664;&#9664;</div>
+    <div class="pixel-btn pixel-btn-play" id="btn-play" title="Play/Pause">&#9654;</div>
+    <div class="pixel-btn" id="btn-next" title="Next">&#9654;&#9654;</div>
+  </div>
+
+  <!-- Volume -->
+  <div class="pixel-player-volume">
+    <div class="pixel-volume-icon">&#9835;</div>
+    <div class="pixel-volume-slider" id="volume-bar">
+      <div class="pixel-volume-fill" id="volume-fill"></div>
+    </div>
+  </div>
+</div>
+
+<audio id="audio-player" preload="auto"></audio>
+
+<script>
+/* ==========================================================
+ *  Pixel Music Player
+ *  - Add your .mp3 files to asset/music/ folder
+ *  - Update the playlist array below
+ * ========================================================== */
+(function() {
+  // ===== PLAYLIST: Add your songs here =====
+  var playlist = [
+    { title: 'MINMI - 四季ノ唄', src: 'asset/music/MINMI旻觅 - 四季ノ唄.mp3' },
+  ];
+
+  var currentTrack = 0;
+  var isPlaying = false;
+
+  // DOM elements
+  var audio = document.getElementById('audio-player');
+  var titleEl = document.getElementById('song-title');
+  var timeEl = document.getElementById('song-time');
+  var progressFill = document.getElementById('progress-fill');
+  var volumeFill = document.getElementById('volume-fill');
+  var btnPlay = document.getElementById('btn-play');
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+  var progressBar = document.getElementById('progress-bar');
+  var volumeBar = document.getElementById('volume-bar');
+  var reelLeft = document.getElementById('reel-left');
+  var reelRight = document.getElementById('reel-right');
+
+  // Format time (seconds -> m:ss)
+  function formatTime(sec) {
+    if (isNaN(sec)) return '0:00';
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  // Load a track
+  function loadTrack(index) {
+    if (index < 0 || index >= playlist.length) return;
+    currentTrack = index;
+    audio.src = playlist[index].src;
+    titleEl.textContent = playlist[index].title;
+    audio.load();
+  }
+
+  // Play
+  function play() {
+    audio.play().then(function() {
+      isPlaying = true;
+      btnPlay.innerHTML = '&#10074;&#10074;'; // pause icon
+      reelLeft.classList.add('spinning');
+      reelRight.classList.add('spinning');
+    }).catch(function(err) {
+      console.log('Play failed:', err);
+    });
+  }
+
+  // Pause
+  function pause() {
+    audio.pause();
+    isPlaying = false;
+    btnPlay.innerHTML = '&#9654;'; // play icon
+    reelLeft.classList.remove('spinning');
+    reelRight.classList.remove('spinning');
+  }
+
+  // Toggle play/pause
+  function togglePlay() {
+    if (isPlaying) {
+      pause();
+    } else {
+      play();
+    }
+  }
+
+  // Next track
+  function nextTrack() {
+    var next = (currentTrack + 1) % playlist.length;
+    loadTrack(next);
+    if (isPlaying) play();
+  }
+
+  // Previous track
+  function prevTrack() {
+    var prev = (currentTrack - 1 + playlist.length) % playlist.length;
+    loadTrack(prev);
+    if (isPlaying) play();
+  }
+
+  // Update progress bar and time display
+  audio.addEventListener('timeupdate', function() {
+    if (audio.duration) {
+      var pct = (audio.currentTime / audio.duration) * 100;
+      progressFill.style.width = pct + '%';
+      timeEl.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
+    }
+  });
+
+  // When track ends, play next
+  audio.addEventListener('ended', function() {
+    nextTrack();
+  });
+
+  // Click on progress bar to seek
+  progressBar.addEventListener('click', function(e) {
+    if (audio.duration) {
+      var rect = progressBar.getBoundingClientRect();
+      var pct = (e.clientX - rect.left) / rect.width;
+      audio.currentTime = pct * audio.duration;
+    }
+  });
+
+  // Click on volume bar to change volume
+  volumeBar.addEventListener('click', function(e) {
+    var rect = volumeBar.getBoundingClientRect();
+    var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audio.volume = pct;
+    volumeFill.style.width = (pct * 100) + '%';
+  });
+
+  // Button events
+  btnPlay.addEventListener('click', togglePlay);
+  btnNext.addEventListener('click', nextTrack);
+  btnPrev.addEventListener('click', prevTrack);
+
+  // ===== Draggable player =====
+  var player = document.getElementById('pixel-player');
+  var isDragging = false;
+  var dragOffsetX = 0, dragOffsetY = 0;
+
+  player.addEventListener('mousedown', function(e) {
+    // Only drag from the top area (not from buttons/controls)
+    if (e.target.closest('.pixel-btn') || e.target.closest('.pixel-player-progress') || e.target.closest('.pixel-volume-slider')) return;
+    isDragging = true;
+    var rect = player.getBoundingClientRect();
+    dragOffsetX = e.clientX - rect.left;
+    dragOffsetY = e.clientY - rect.top;
+    player.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    var x = e.clientX - dragOffsetX;
+    var y = e.clientY - dragOffsetY;
+    // Keep within viewport
+    x = Math.max(0, Math.min(window.innerWidth - player.offsetWidth, x));
+    y = Math.max(0, Math.min(window.innerHeight - player.offsetHeight, y));
+    player.style.left = x + 'px';
+    player.style.top = y + 'px';
+    player.style.right = 'auto';
+    player.style.bottom = 'auto';
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (isDragging) {
+      isDragging = false;
+      player.style.cursor = 'move';
+    }
+  });
+
+  // Initialize
+  audio.volume = 0.7;
+  loadTrack(0);
+
+  // ===== Auto-play attempt =====
+  // Try to play immediately. If browser blocks, play on first user interaction.
+  function tryAutoplay() {
+    play().then(function() {
+      // Autoplay succeeded
+    }).catch(function() {
+      // Autoplay blocked - play on first user interaction
+      function playOnInteraction() {
+        play();
+        document.removeEventListener('click', playOnInteraction);
+        document.removeEventListener('keydown', playOnInteraction);
+        document.removeEventListener('scroll', playOnInteraction);
+        document.removeEventListener('touchstart', playOnInteraction);
+      }
+      document.addEventListener('click', playOnInteraction);
+      document.addEventListener('keydown', playOnInteraction);
+      document.addEventListener('scroll', playOnInteraction);
+      document.addEventListener('touchstart', playOnInteraction);
+    });
+  }
+
+  // Wait for audio to be loaded before trying to play
+  if (audio.readyState >= 2) {
+    tryAutoplay();
+  } else {
+    audio.addEventListener('canplay', function() {
+      tryAutoplay();
+    }, { once: true });
+  }
+})();
+</script>
 
 </body>
 </html>
