@@ -877,15 +877,15 @@ d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(f
     .on("mouseover", function(e, d) { showTip(e, d.properties.name + (visitedCountries.includes(d.properties.name) ? " \u2713" : "")); })
     .on("mousemove", moveTip)
     .on("mouseout", hideTip);
-+
-+ var matched = topojson.feature(world, world.objects.countries).features
-+   .filter(function(f) { return visitedCountries.includes(f.properties.name); })
-+   .map(function(f) { return f.properties.name; });
-+
-+ document.getElementById("world-count").textContent = matched.length;
-+
-+ var notFound = visitedCountries.filter(function(n) { return !matched.includes(n); });
-+ if (notFound.length) console.warn("地图数据里找不到的国家:", notFound);
+
+ var matched = topojson.feature(world, world.objects.countries).features
+    .filter(function(f) { return visitedCountries.includes(f.properties.name); })
+    .map(function(f) { return f.properties.name; });
+ 
+ document.getElementById("world-count").textContent = matched.length;
+
+ var notFound = visitedCountries.filter(function(n) { return !matched.includes(n); });
+ if (notFound.length) console.warn("地图数据里找不到的国家:", notFound);
 });
 
 /* ========== China Map (ECharts) ========== */
