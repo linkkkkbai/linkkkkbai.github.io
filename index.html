@@ -853,7 +853,11 @@ function moveTip(e) {
 function hideTip() { tooltip.style("opacity", 0); }
 
 /* ========== World Map (D3) ========== */
-var visitedCountries = ["China", "Taiwan", "Malaysia", "United States of America", "Japan"];
+var visitedCountries = [
+  "China", "Taiwan", "Malaysia", "United States of America", "Japan",
+  "France", "Italy", "Indonesia", "Thailand",
+  "Qatar", "United Arab Emirates", "Singapore"
+];
 
 var ww = 900, wh = 480;
 var wProj = d3.geoNaturalEarth1().scale(ww / 5.2).translate([ww / 2, wh / 2]);
